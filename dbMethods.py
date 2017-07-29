@@ -18,11 +18,41 @@ def dynamic_data_entry_Edges(source, target, type, id, weight):
           (source, target, type, id, weight))
     conn.commit()
 
-def read_from_db_GephiNodes():
+def read_from_db_GephiNodes(**kwargs):
+    if "id" in kwargs:
+        id = (kwargs["id"], )
+        c.execute("SELECT * FROM GephiNodes WHERE id=?", id)
+        data = c.fetchall()
+        return data
+    if "label" in kwargs:
+        label = (kwargs["label"], )
+        c.execute("SELECT * FROM GephiNodes WHERE label=?", label)
+        data = c.fetchall()
+        return data
     c.execute("SELECT * FROM GephiNodes")
+    data = c.fetchall()
+    return data
 
-def read_from_db_GephiNodes():
+
+def read_from_db_GephiEdges(**kwargs):
+    if "id" in kwargs:
+        id = (kwargs["id"], )
+        c.execute("SELECT * FROM GephiEdges WHERE id=?", id)
+        data = c.fetchall()
+        return data
+    if "source" in kwargs:
+        source = (kwargs["source"], )
+        c.execute("SELECT * FROM GephiEdges WHERE source=?", source)
+        data = c.fetchall()
+        return data
+    if "target" in kwargs:
+        target = (kwargs["target"], )
+        c.execute("SELECT * FROM GephiEdges WHERE target=?", target)
+        data = c.fetchall()
+        return data
     c.execute("SELECT * FROM GephiEdges")
+    data = c.fetchall()
+    return data
 
 def close_connection():
     c.close()

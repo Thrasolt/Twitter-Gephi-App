@@ -1,4 +1,5 @@
 import dbMethods
+import managers
 
 class GephiNode:
     """ The Class for the nodes of the twitter network
@@ -8,16 +9,34 @@ class GephiNode:
         self.label = label
         self.fan_count = fan_count
         self.category = category
-        dbMethods.dynamic_data_entry_Nodes(self.id, self.label, self.fan_count, self.category)
 
+    def create(self):
+        dbMethods.dynamic_data_entry_Nodes(
+            self.id,
+            self.label,
+            self.fan_count,
+            self.category
+        )
+
+    objects = managers.GephiNodeManager()
 
 class GephiEdge:
-        """ The Class for the edge of the twitter network
-        """
+    """ The Class for the edge of the twitter network
+    """
     def __init__(self, source, target, type, id, weight):
         self.source = source
         self.target = target
         self.type = type
         self.id = id
         self.weight = weight
-        dbMethods.dynamic_data_entry_Edges(self.source, self.target, self.type, self.id, self.weight)
+
+    def create(self):
+        dbMethods.dynamic_data_entry_Edges(
+            self.source,
+            self.target,
+            self.type,
+            self.id,
+            self.weight
+        )
+
+    objects = managers.GephiEdgeManager()
