@@ -5,12 +5,12 @@ conn = sqlite3.connect('gephi.db')
 c = conn.cursor()
 
 def create_table():
-    c.execute('CREATE TABLE IF NOT EXISTS GephiNodes(id INTEGER, label TEXT, fan_count INTEGER, category TEXT )')
+    c.execute('CREATE TABLE IF NOT EXISTS GephiNodes(id INTEGER, label TEXT, fan_count INTEGER, handle TEXT )')
     c.execute('CREATE TABLE IF NOT EXISTS GephiEdges(source INTEGER, target INTEGER, type TEXT, id INTEGER, weight INTEGER)')
 
-def dynamic_data_entry_Nodes(id, label, fan_count, category):
-    c.execute("INSERT INTO GephiNodes (id, label, fan_count, category) VALUES (?, ?, ?, ?)",
-          (id, label, fan_count, category))
+def dynamic_data_entry_Nodes(id, label, fan_count, handle):
+    c.execute("INSERT INTO GephiNodes (id, label, fan_count, handle) VALUES (?, ?, ?, ?)",
+          (id, label, fan_count, handle))
     conn.commit()
 
 def dynamic_data_entry_Edges(source, target, type, id, weight):
@@ -27,6 +27,11 @@ def read_from_db_GephiNodes(**kwargs):
     if "label" in kwargs:
         label = (kwargs["label"], )
         c.execute("SELECT * FROM GephiNodes WHERE label=?", label)
+        data = c.fetchall()
+        return data
+    if "handle" in kwargs:
+        handle = (kwargs["handle"], )
+        c.execute("SELECT * FROM GephiNodes WHERE handle=?", handle)
         data = c.fetchall()
         return data
     c.execute("SELECT * FROM GephiNodes")

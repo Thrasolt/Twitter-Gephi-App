@@ -5,7 +5,7 @@ class GephiEdgeManager:
 
     def get(self, **kwargs):
         if "id" in kwargs:
-            raw = dbMethods.read_from_db_GephiEdges(id=kwargs[id])[0]
+            raw = dbMethods.read_from_db_GephiEdges(id=kwargs["id"])[0]
             return models.GephiEdge(
                 source = raw[0],
                 target = raw[1],
@@ -14,7 +14,7 @@ class GephiEdgeManager:
                 id = raw[4],
             )
         if "source" in kwargs:
-            raw = dbMethods.read_from_db_GephiEdges(source=kwargs[source])[0]
+            raw = dbMethods.read_from_db_GephiEdges(source=kwargs["source"])[0]
             return models.GephiEdge(
                 source = raw[0],
                 target = raw[1],
@@ -23,7 +23,7 @@ class GephiEdgeManager:
                 id = raw[4],
             )
         if "target" in kwargs:
-            raw = dbMethods.read_from_db_GephiEdges(target=kwargs[target])[0]
+            raw = dbMethods.read_from_db_GephiEdges(target=kwargs["target"])[0]
             return models.GephiEdge(
                 source = raw[0],
                 target = raw[1],
@@ -34,7 +34,7 @@ class GephiEdgeManager:
 
     def filter(self, **kwargs):
         if "id" in kwargs:
-            raw = dbMethods.read_from_db_GephiEdges(id=kwargs[id])
+            raw = dbMethods.read_from_db_GephiEdges(id=kwargs["id"])
             EdgeList = list()
             for row in raw:
                 EdgeList.append(models.GephiEdge(
@@ -46,8 +46,37 @@ class GephiEdgeManager:
                 ))
             return EdgeList
 
+        if "source" in kwargs and "target" in kwargs:
+            EdgeList = list()
+            raw = dbMethods.read_from_db_GephiEdges(source=kwargs["source"])
+            EdgeList_s = list()
+            for row in raw:
+                EdgeList_s.append(models.GephiEdge(
+                    source = row[0],
+                    target = row[1],
+                    type = row[2],
+                    weight = row[3],
+                    id = row[4],
+                ))
+            raw = dbMethods.read_from_db_GephiEdges(target=kwargs["target"])
+            EdgeList_t = list()
+            for row in raw:
+                EdgeList_t.append(models.GephiEdge(
+                    source = row[0],
+                    target = row[1],
+                    type = row[2],
+                    weight = row[3],
+                    id = row[4],
+                ))
+            for s in EdgeList_s:
+                for t in EdgeList_t:
+                    if s.id == t.id:
+                        EdgeList.append(s)
+            return EdgeList
+
+
         if "source" in kwargs:
-            raw = dbMethods.read_from_db_GephiEdges(source=kwargs[source])
+            raw = dbMethods.read_from_db_GephiEdges(source=kwargs["source"])
             EdgeList = list()
             for row in raw:
                 EdgeList.append(models.GephiEdge(
@@ -60,7 +89,7 @@ class GephiEdgeManager:
             return EdgeList
 
         if "target" in kwargs:
-            raw = dbMethods.read_from_db_GephiEdges(target=kwargs[target])
+            raw = dbMethods.read_from_db_GephiEdges(target=kwargs["target"])
             EdgeList = list()
             for row in raw:
                 EdgeList.append(models.GephiEdge(
@@ -89,43 +118,63 @@ class GephiNodeManager:
 
     def get(self, **kwargs):
         if "id" in kwargs:
-            raw = dbMethods.read_from_db_GephiNodes(id=kwargs[id])[0]
+            raw = dbMethods.read_from_db_GephiNodes(id=kwargs["id"])[0]
             return models.GephiNode(
                 id = raw[0],
                 label = raw[1],
                 fan_count = raw[2],
-                category = raw[3]
+                handle = raw[3]
             )
         if "label" in kwargs:
-            raw = dbMethods.read_from_db_GephiNodes(label=kwargs[label])[0]
+            raw = dbMethods.read_from_db_GephiNodes(label=kwargs["label"])[0]
             return models.GephiNode(
                 id = raw[0],
                 label = raw[1],
                 fan_count = raw[2],
-                category = raw[3]
+                handle = raw[3]
             )
+        if "handle" in kwargs:
+            raw = dbMethods.read_from_db_GephiNodes(handle=kwargs["handle"])[0]
+            return models.GephiNode(
+                id = raw[0],
+                label = raw[1],
+                fan_count = raw[2],
+                handle = raw[3],
+            )
+
 
     def filter(self, **kwargs):
         if "id" in kwargs:
-            raw = dbMethods.read_from_db_GephiNodes(id=kwargs[id])
+            raw = dbMethods.read_from_db_GephiNodes(id=kwargs["id"])
             NodeList = list()
             for row in raw:
                 NodeList.append(models.GephiNode(
                     id = row[0],
                     label = row[1],
                     fan_count = row[2],
-                    category = row[3]
+                    handle = row[3]
                 ))
             return NodeList
         if "label" in kwargs:
-            raw = dbMethods.read_from_db_GephiNodes(label=kwargs[label])
+            raw = dbMethods.read_from_db_GephiNodes(label=kwargs["label"])
             NodeList = list()
             for row in raw:
                 NodeList.append(models.GephiNode(
                     id = row[0],
                     label = row[1],
                     fan_count = row[2],
-                    category = row[3]
+                    handle = row[3]
+                ))
+            return NodeList
+        if "handle" in kwargs:
+            raw = dbMethods.read_from_db_GephiNodes(handle=kwargs["handle"])
+            NodeList = list()
+            for row in raw:
+                NodeList.append(models.GephiNode(
+                    id = row[0],
+                    label = row[1],
+                    fan_count = row[2],
+                    handle = row[3]
                 ))
             return NodeList
 
@@ -137,6 +186,6 @@ class GephiNodeManager:
                 id = row[0],
                 label = row[1],
                 fan_count = row[2],
-                category = row[3]
+                handle = row[3]
             ))
         return NodeList
