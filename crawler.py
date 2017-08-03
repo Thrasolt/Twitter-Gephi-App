@@ -10,6 +10,9 @@ import time
 import utils
 import models
 
+import threading
+from queue import Queue
+
 
 
 def start_crawler(url, email, password, depth):
@@ -40,94 +43,93 @@ def start_crawler(url, email, password, depth):
     soup = BeautifulSoup(html_doc, 'html.parser')
 
     id = len(models.GephiNode.objects.all()) + 1
+    print("id: ", id)
     label = soup.find("a", {"class":"ProfileHeaderCard-nameLink u-textInheritColor js-nav"}).get_text()
-    fan_count = soup.findAll("span", {"class":"ProfileNav-value"})[2].get_text()
+    print("label: ", label)
+    try:
+        fan_count = soup.findAll("span", {"class":"ProfileNav-value"})[2].get_text()
+    except:
+        fan_count = 0
+
+    print("fan_count: ", fan_count)
     handle = soup.find("b", {"class":"u-linkComplex-target"}).get_text()
+    print("handle: ", handle)
     Anchor = models.GephiNode(id=id, label=label, fan_count=fan_count, handle=handle)
     Anchor.create()
+    print("Anchor: ", Anchor.id, Anchor.label)
 
     # following
     driver.get(url+"/following")
     wait = ui.WebDriverWait(driver, 10)
     wait.until(page_loaded)
-    utils.scroll(driver, 10)
+
+    try:
+        lnks_cnt = int(soup.findAll("span", {"class":"ProfileNav-value"})[1].get_text().replace(".", ""))
+    except:
+        lnks_cnt = 300
+    print(lnks_cnt)
+    links = driver.find_elements_by_xpath("//a[@class='ProfileCard-bg js-nav']")
+    print(len(links))
+
+    test = 1
+    while len(links) < lnks_cnt - 2 and test < 300:
+        utils.scroll(driver)
+        links = driver.find_elements_by_xpath("//a[@class='ProfileCard-bg js-nav']")
+        print("following: ", lnks_cnt)
+        print("links: ", len(links))
+        test += 1
+    utils.scroll(driver)
     links = driver.find_elements_by_xpath("//a[@class='ProfileCard-bg js-nav']")
 
+
+    newUrlList = list()
+    for lnk in links:
+        newUrlList.append(lnk.get_attribute("href"))
+    print("links: ", newUrlList)
+
     #First Followed
-    for index in range(0, len(links)):
-        links[index].click()
-        time.sleep(5)
-        newUrl = driver.current_url
-        if depth > 1:
-            start_crawler(newUrl, email, password, depth-1)
-        driver.get(newUrl)
+    for link in newUrlList:
+        driver.get(link)
         wait = ui.WebDriverWait(driver, 10)
         wait.until(page_loaded)
         html_doc = driver.page_source
         soup = BeautifulSoup(html_doc, 'html.parser')
-
         id = len(models.GephiNode.objects.all()) + 1
         print("id: ", id)
         label = soup.find("a", {"class":"ProfileHeaderCard-nameLink u-textInheritColor js-nav"}).get_text()
         print("label: ", label)
-        fan_count = soup.findAll("span", {"class":"ProfileNav-value"})[2].get_text()
+        try:
+            fan_count = soup.findAll("span", {"class":"ProfileNav-value"})[2].get_text()
+        except:
+            fan_count = 0
         print("fan_count: ", fan_count)
         handle = soup.find("b", {"class":"u-linkComplex-target"}).get_text()
         print("handle: ", handle)
         tempNode = models.GephiNode(id=id, label=label, fan_count=fan_count, handle=handle)
         tempNode.create()
 
-        firstEdge = models.GephiEdge(source=Anchor.id, target=tempNode.id, type="Directed", id=1, weight=1)
+        print("source: ", Anchor.id)
+        print("target: ", tempNode.id)
+        print("type: ", "Directed")
+        edge_id = len(models.GephiEdge.objects.all())
+        print("id: ", edge_id)
+
+        firstEdge = models.GephiEdge(source=Anchor.id, target=tempNode.id, type="Directed", id=edge_id, weight=1)
         firstEdge.create()
-        driver.get(url+"/following")
-        wait = ui.WebDriverWait(driver, 10)
-        wait.until(page_loaded)
-        utils.scroll(driver, 10)
-        links = driver.find_elements_by_xpath("//a[@class='ProfileCard-bg js-nav']")
-
-
-
-
-
-
-    '''
-    # print(driver.page_source)
-
-    # Finding email and password fields and sending the keys
-    email = driver.find_element_by_id("email")
-    email.send_keys(input_email_id)
-    pwd = driver.find_element_by_id("pass")
-    pwd.send_keys(input_pwd)
-    pwd.send_keys(Keys.RETURN)
-
-    time.sleep(5)
-
-    driver.get("https://www.facebook.com/groups/464961190503556/")
-    time.sleep(5)
-    #text_box = driver.find_element_by_xpath("/html/body/div[@id='composer_text_input_box']")
-    text_box = driver.find_element_by_id('rc.u_0_2f')
-    #text_box = driver.find_element_by_id('composer_text_input_box')
-    #text_box = driver.find_element_by_css_selector(".uiTextareaAutogrow._552m")
-    text_box.click()
-    time.sleep(5)
-    actions = ActionChains(driver)
-    actions.send_keys(post)
-    actions.send_keys(Keys.RETURN)
-    actions.perform()
-    time.sleep(5)
-    button = driver.find_element_by_xpath('//button[@type="submit" and @value="1" and @class="_1mf7 _4jy0 _4jy3 _4jy1 _51sy selected _42ft"]')
-    button.click()
-    time.sleep(5)
     driver.close()
 
+    # Rekcursion
 
-    driver.get("https://www.facebook.com/events/birthdays")
+    if depth > 0:
+        # Create the queue and threader
 
-    box_count = len(driver.find_elements_by_class_name("innerWrap"))
+        def threader():
+            while True:
+                start_crawler(uri, email, password, depth-1)
 
-    for x in range(0, box_count):
-    	text_box = driver.find_element_by_tag_name('textarea')
-    	text_box.send_keys("Happy Birthday!! \n")
-    	# The birthday message
-
-'''
+        for uri in newUrlList:
+            t = threading.Thread(target=threader)
+            # classifying as a daemon, so they will die when the main dies
+            t.daemon = True
+            # begins, must come after daemon definition
+            t.start()

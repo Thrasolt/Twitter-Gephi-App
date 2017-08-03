@@ -10,6 +10,6 @@ Password = ""
 
 dbMethods.create_table()
 
-crawler.start_crawler(URL, Email, Password, 10)
+crawler.start_crawler(URL, Email, Password, 3)
 
 dbMethods.close_connection()

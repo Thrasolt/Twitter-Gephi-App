@@ -20,6 +20,11 @@ class GephiNode:
             )
         else:
             print('Already exists')
+            node = GephiNode.objects.get(handle=self.handle)
+            self.id = node.id
+            self.label =node.label
+            self.fan_count = node.fan_count
+            self.handle = node.handle
 
     objects = managers.GephiNodeManager()
 
