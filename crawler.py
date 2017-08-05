@@ -9,9 +9,6 @@ import getpass
 import time
 import utils
 import models
-
-import threading
-from queue import Queue
 from random import shuffle
 
 def start_crawler(url, email, password, depth):
@@ -24,7 +21,7 @@ def start_crawler(url, email, password, depth):
     # Log and sign into twitter - definde or redefine driver
     def log_in():
         # Opening the web browser and the twitter page
-        driver = webdriver.Firefox(executable_path=r'F:\Dokumentation\Programme\Geckodriver\geckodriver.exe')
+        driver = webdriver.Chrome(executable_path=r'F:\Dokumentation\Programme\ChromeDriver\chromedriver.exe')
         driver.get(url)
         wait = ui.WebDriverWait(driver, 10)
         wait.until(page_loaded)
@@ -72,13 +69,13 @@ def start_crawler(url, email, password, depth):
     try:
         lnks_cnt = int(soup.findAll("span", {"class":"ProfileNav-value"})[1].get_text().replace(".", ""))
     except:
-        lnks_cnt = 300
+        lnks_cnt = 1500
     print(lnks_cnt)
     links = driver.find_elements_by_xpath("//a[@class='ProfileCard-bg js-nav']")
     print(len(links))
 
     test = 1
-    while len(links) < lnks_cnt - 2 and test < 300:
+    while len(links) < lnks_cnt - 2 and test < 1500:
         utils.scroll(driver)
         links = driver.find_elements_by_xpath("//a[@class='ProfileCard-bg js-nav']")
         print("following: ", lnks_cnt)
@@ -98,7 +95,7 @@ def start_crawler(url, email, password, depth):
     # Check everyone the Anchor follows
     print("link count: ", len(links))
     print("edge count: ", len(models.GephiEdge.objects.filter(source=Anchor.id)))
-    if len(links) > len(models.GephiEdge.objects.filter(source=Anchor.id)):
+    if len(newUrlList) > len(models.GephiEdge.objects.filter(source=Anchor.id)):
 
         #First Followed
         for link in newUrlList:
@@ -148,10 +145,15 @@ def start_crawler(url, email, password, depth):
                 if len(newUrlList) == len(models.GephiEdge.objects.filter(source=Anchor.id)):
                     break
 
+            print("Nodes: ", len(models.GephiNode.objects.all()))
+            print("Edges: ", len(models.GephiEdge.objects.all()))
+            print("Difference: ", len(models.GephiEdge.objects.all()) - len(models.GephiNode.objects.all()))
+
     driver.close()
 
     # Rekcursion
 
+    print("depth: ", depth)
     if depth > 0:
         for uri in newUrlList:
             try:

@@ -7,29 +7,29 @@ class GephiEdgeManager:
         if "id" in kwargs:
             raw = dbMethods.read_from_db_GephiEdges(id=kwargs["id"])[0]
             return models.GephiEdge(
-                source = raw[0],
-                target = raw[1],
-                type = raw[2],
-                weight = raw[3],
-                id = raw[4],
+                source = row[0],
+                target = row[1],
+                type = row[2],
+                id = row[3],
+                weight = row[4],
             )
         if "source" in kwargs:
             raw = dbMethods.read_from_db_GephiEdges(source=kwargs["source"])[0]
             return models.GephiEdge(
-                source = raw[0],
-                target = raw[1],
-                type = raw[2],
-                weight = raw[3],
-                id = raw[4],
+                source = row[0],
+                target = row[1],
+                type = row[2],
+                id = row[3],
+                weight = row[4],
             )
         if "target" in kwargs:
             raw = dbMethods.read_from_db_GephiEdges(target=kwargs["target"])[0]
             return models.GephiEdge(
-                source = raw[0],
-                target = raw[1],
-                type = raw[2],
-                weight = raw[3],
-                id = raw[4],
+                source = row[0],
+                target = row[1],
+                type = row[2],
+                id = row[3],
+                weight = row[4],
             )
 
     def filter(self, **kwargs):
@@ -41,8 +41,8 @@ class GephiEdgeManager:
                     source = row[0],
                     target = row[1],
                     type = row[2],
-                    weight = row[3],
-                    id = row[4],
+                    id = row[3],
+                    weight = row[4],
                 ))
             return EdgeList
 
@@ -55,8 +55,8 @@ class GephiEdgeManager:
                     source = row[0],
                     target = row[1],
                     type = row[2],
-                    weight = row[3],
-                    id = row[4],
+                    id = row[3],
+                    weight = row[4],
                 ))
             raw = dbMethods.read_from_db_GephiEdges(target=kwargs["target"])
             EdgeList_t = list()
@@ -65,8 +65,8 @@ class GephiEdgeManager:
                     source = row[0],
                     target = row[1],
                     type = row[2],
-                    weight = row[3],
-                    id = row[4],
+                    id = row[3],
+                    weight = row[4],
                 ))
             for s in EdgeList_s:
                 for t in EdgeList_t:
