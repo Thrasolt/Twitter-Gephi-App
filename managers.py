@@ -83,8 +83,8 @@ class GephiEdgeManager:
                     source = row[0],
                     target = row[1],
                     type = row[2],
-                    weight = row[3],
-                    id = row[4],
+                    id = row[3],
+                    weight = row[4],
                 ))
             return EdgeList
 
@@ -96,8 +96,8 @@ class GephiEdgeManager:
                     source = row[0],
                     target = row[1],
                     type = row[2],
-                    weight = row[3],
-                    id = row[4],
+                    id = row[3],
+                    weight = row[4],
                 ))
             return EdgeList
 
@@ -109,8 +109,8 @@ class GephiEdgeManager:
                 source = row[0],
                 target = row[1],
                 type = row[2],
-                weight = row[3],
-                id = row[4],
+                id = row[3],
+                weight = row[4],
             ))
         return NodeList
 
